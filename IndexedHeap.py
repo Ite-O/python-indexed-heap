@@ -27,6 +27,7 @@ class iheap(ABC):
         
         self.heap = []
         self.item_to_index = {}
+        self.size = 0
         if len(arr) > 0:
             first_item = arr[0]
             for item in arr:
@@ -34,6 +35,7 @@ class iheap(ABC):
             
                 if not is_comparable:
                     raise TypeError(f"All items in the heap must be comparable. {type1} and {type2} are not comparable.")
+                self.size += 1
                 heap_item = HeapItem(item)
                 if heap_item in self.item_to_index:
                     idx = self.item_to_index[heap_item]
@@ -113,6 +115,7 @@ class iheap(ABC):
             is_comparable, type1, type2 = self._is_comparable(item, self.heap[0].item)
             if not is_comparable:
                 raise TypeError(f"All items in the heap must be comparable. {type1} and {type2} are not comparable.")
+        self.size += count
         heap_item = HeapItem(item, count)
         if heap_item in self.item_to_index:
             idx = self.item_to_index[heap_item]
@@ -139,71 +142,62 @@ class iheap(ABC):
         del self.item_to_index[res]
         if len(self.heap) > 1:
             self._sift_down()
+        self.size -= 1
         return res.item
     
-    def _validate_item_in_heap(self, item):
+    def _item_in_heap(self, item):
         heap_item = HeapItem(item)
         if heap_item not in self.item_to_index:
-            raise ValueError(f"The provided item ({item}) is not in the heap")
-        return (heap_item, self.item_to_index[heap_item])
+            return (False, None, None)
+        idx = self.item_to_index[heap_item]
+        try:
+            return (True, self.heap[idx], idx)
+        except IndexError:
+            del self.item_to_index[idx]
+            return (False, None, None)
     
-    def update(self, item, count):
-        heap_item, idx = self._validate_item_in_heap(item)
-        if count == "ALL":
-            count = heap_item.frequency
+    def remove(self, item, count = None):
+        found_in_heap, heap_item, idx = self._item_in_heap(item)
+        if not found_in_heap:
+            return False
+        if count is None:
+            count = 1
         if not isinstance(count, int):
-            raise ValueError("The count must be an integer or 'ALL'")
-        if count < 0:
-            raise ValueError("Count must be greater than or equal to 0")
-        if count > 0:
-            heap_item.frequency = count
+            raise ValueError("The count must be an integer")
+        if count < 1:
+            raise ValueError("Count must be at least 1")
+        if count > heap_item.frequency:
+            raise ValueError(f"Count must be less than or equal to item frequency ({heap_item.frequency})")
+        if count < heap_item.frequency:
+            heap_item.frequency -= count
+            self.size -= count
         else:
             last_idx = len(self.heap) -1
             if idx != last_idx:
-                last_item = self.heap[last_item]
+                last_item = self.heap[last_idx]
                 self.heap[idx], self.heap[last_idx] = self.heap[last_idx], self.heap[idx]
                 self.item_to_index[last_item] = idx
             self.heap.pop()
             del self.item_to_index[heap_item]
+            self.size -= heap_item.frequency
             if idx != last_idx:
                 new_idx = self._sift_down(idx)
                 self._sift_up(new_idx)
-            
-    def remove(self, item):
-        self.update(item, "ALL")
-
-    def replace(self, curr_item, new_item, count = "ALL"):
-        curr_heap_item, curr_idx = self._validate_item_in_heap(curr_item)
-        is_comparable, type1, type2 = self._is_comparable(new_item, curr_item)
-        if not is_comparable:
-            raise TypeError(f"All items in the heap must be comparable. {type1} and {type2} are not comparable.")
-        new_heap_item = HeapItem(new_item)
-        if curr_heap_item == new_heap_item:
-            raise ValueError("curr_item cannot be equivalent to the new_item, consider using the update or remove methods")
-
-        if count == "ALL":
-            count = curr_heap_item.frequency
-        if type(count) != int:
-            raise ValueError("Count should either be an integer or 'ALL'")
-        if count < 1 or count > curr_heap_item.frequency:
-            raise ValueError(f"Count should be between 1 and the frequncy of {curr_item} in the heap ({curr_heap_item.frequency})")
-        
-        if count == curr_heap_item.frequency:
-            new_heap_item.frequency = curr_heap_item.frequency
-            self.heap[curr_idx] = new_heap_item
-            del self.item_to_index[curr_heap_item]
-            self.item_to_index[new_heap_item] = curr_idx
-            new_idx = self._sift_down(curr_idx)
-            self._sift_up(new_idx)
-        else:
-            curr_heap_item.frequency -= count
-            self.insert(new_item, count)
+        return True
 
     def __len__(self):
-        return len(self.heap)
+        return self.size
     
     def __bool__(self):
         return bool(self.heap)
+    
+    def count(self, item):
+        found_in_heap, heap_item, _ = self._item_in_heap(item)
+        if found_in_heap:
+            return heap_item.frequency
+        else:
+            return 0
+        
     
     def to_list(self, showFreq = False):
         res = []

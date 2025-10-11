@@ -129,21 +129,21 @@ class iheap(ABC):
         n = len(self.heap)
         if n == 0:
             raise IndexError("Pop from empty heap")
-        if n > 1:
-            root: HeapItem = self.heap[0]
-            if root.frequency > 1:
-                root.frequency -= 1
-                return root.item
-            else:
+        self.size -= 1
+        root: HeapItem = self.heap[0]
+        if root.frequency > 1:
+            root.frequency -= 1
+            return root.item
+        else:
+            if n > 1:
                 last_item = self.heap[n-1]
                 self.heap[0], self.heap[n-1] = self.heap[n-1], self.heap[0]
                 self.item_to_index[last_item] = 0
-        res = self.heap.pop()
-        del self.item_to_index[res]
-        if len(self.heap) > 1:
-            self._sift_down()
-        self.size -= 1
-        return res.item
+            res = self.heap.pop()
+            del self.item_to_index[res]
+            if len(self.heap) > 1:
+                self._sift_down()
+            return res.item
     
     def _item_in_heap(self, item):
         heap_item = HeapItem(item)
@@ -153,13 +153,16 @@ class iheap(ABC):
         try:
             return (True, self.heap[idx], idx)
         except IndexError:
-            del self.item_to_index[idx]
+            del self.item_to_index[heap_item]
             return (False, None, None)
     
-    def remove(self, item, count = None):
+    def remove(self, item, count = None, *, strict = True):
         found_in_heap, heap_item, idx = self._item_in_heap(item)
         if not found_in_heap:
-            return False
+            if strict == False:
+                return False
+            else:
+                raise ValueError(f"{item} not in heap")
         if count is None:
             count = 1
         if not isinstance(count, int):
@@ -167,7 +170,10 @@ class iheap(ABC):
         if count < 1:
             raise ValueError("Count must be at least 1")
         if count > heap_item.frequency:
-            raise ValueError(f"Count must be less than or equal to item frequency ({heap_item.frequency})")
+            if strict == False:
+                count = heap_item.frequency
+            else: 
+                raise ValueError(f"Count must be less than or equal to item frequency ({heap_item.frequency})")
         if count < heap_item.frequency:
             heap_item.frequency -= count
             self.size -= count
@@ -197,9 +203,8 @@ class iheap(ABC):
             return heap_item.frequency
         else:
             return 0
-        
-    
-    def to_list(self, showFreq = False):
+
+    def to_heap_array(self, *, showFreq = False):
         res = []
         if showFreq:
             for heap_item in self.heap:
@@ -209,6 +214,25 @@ class iheap(ABC):
                 res.append(heap_item.item)
         return res
     
+    def _copy(self):
+        heap_copy = [HeapItem(heap_item.item, heap_item.frequency) for heap_item in self.heap]
+        item_to_index_copy = {heap_copy[index]: index for index in range(len(heap_copy))}
+        size_copy = self.size
+        new_heap = self.__class__()
+        new_heap.heap, new_heap.item_to_index, new_heap.size = heap_copy, item_to_index_copy, size_copy
+        return new_heap
+    
+    def __iter__(self):
+        copy = self._copy()
+        while len(copy) > 0:
+            yield copy.pop()
+
+    def ordered_list(self):
+        return list(self)
+    
+    def __str__(self):
+        return str(self.to_heap_array(showFreq=True))
+        
     @abstractmethod
     def _is_class(self, other):
         pass

@@ -17,7 +17,7 @@ class IndexedHeap(ABC):
     - peek: O(1)
     - remove: O(log(N))
     - count: O(1)
-    - ordered_list / __iter__: O(N * log(N))
+    - to_sorted_list: O(N * log(N))
 
     """
 
@@ -486,7 +486,7 @@ class IndexedHeap(ABC):
         while len(copy) > 0:
             yield copy.pop()
 
-    def ordered_list(self):
+    def to_sorted_list(self):
         """
         Return a list of all heap elements in sorted order.
 

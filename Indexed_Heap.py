@@ -1,33 +1,37 @@
-from typing import List, Any
 from abc import ABC, abstractmethod
 from HeapItem import HeapItem
     
 class IndexedHeap(ABC):
-    class IndexedHeap(ABC):
-        """
-        Abstract base class for a heap with indexed access.
+    """
+    Abstract base class for a heap with indexed access.
 
-        Elements are stored in a list to maintain heap order, alongside a dictionary
-        that maps items to their positions. This enables efficient removal of 
-        items, in addition to standard operations like insert, pop, and peek.
+    Elements are stored in a list to maintain heap order, alongside a dictionary
+    that maps items to their positions. This enables efficient removal of 
+    items, in addition to standard operations like insert, pop, and peek.
 
-        Use `MinHeap` for a min-heap or `MaxHeap` for a max-heap.
+    Use `MinHeap` for a min-heap or `MaxHeap` for a max-heap.
 
-        """
+    Time Complexity Overview (N = number of unique items in the heap):
+    - insert: O(log(N))
+    - pop: O(log(N))
+    - peek: O(1)
+    - remove: O(log(N))
+    - count: O(1)
+    - ordered_list / __iter__: O(N * log(N))
 
-    def __init__(self, arr: List = None):
+    """
+
+    def __init__(self, arr = None):
         """
         Initialize the heap with an optional list of items.
 
-        Parameters
-        ----------
+        Parameters:
         arr : list, optional
             Initial values to populate the heap. Duplicate items are merged
             and tracked via an internal frequency counter. All items must be
             mutually comparable according to the heap's ordering rules.
 
-        Comparison Requirements
-        -----------------------
+        Comparison Requirements:
         - In `MinHeap`, items must support the `<` operator.
         - In `MaxHeap`, items must support the `>` operator.
         - All elements must be comparable with one another. Mixing types like `str`
@@ -35,6 +39,8 @@ class IndexedHeap(ABC):
         - To use custom comparison logic, implement `__lt__` (for `MinHeap`) or `__gt__`
         (for `MaxHeap`) so that items can be ordered.
 
+        Time Complexity:
+        O(N)
         """
 
 
@@ -47,45 +53,47 @@ class IndexedHeap(ABC):
         self.heap = []
         self.item_to_index = {}
         self.size = 0
+        prev_item = None
         if len(arr) > 0:
-            first_item = arr[0]
             for item in arr:
-                is_comparable, type1, type2 = self._is_comparable(item, first_item)
-            
-                if not is_comparable:
-                    raise TypeError(f"All items in the heap must be comparable. {type1} and {type2} are not comparable.")
-                self.size += 1
-                heap_item = HeapItem(item)
-                if heap_item in self.item_to_index:
-                    idx = self.item_to_index[heap_item]
+                if prev_item:
+                    is_comparable, type1, type2 = self._is_comparable(item, prev_item)
+                    if not is_comparable:
+                        raise TypeError(f"All items in the heap must be comparable. {type1} and {type2} are not comparable.")    
+                if item in self.item_to_index:
+                    idx = self.item_to_index[item]
                     self.heap[idx].frequency +=1
                 else:
+                    heap_item = HeapItem(item)
                     self.heap.append(heap_item)
-                    self.item_to_index[heap_item] = len(self.heap) - 1
+                    self.item_to_index[item] = len(self.heap) - 1
+                self.size += 1
+                prev_item = item
 
             for i in range((len(self.heap)//2)-1, -1, -1):
                 self._sift_down(i)
 
     @abstractmethod
-    def _comes_before(self, a, b) -> bool:
+    def _comes_before(self, a, b):
         """
         Determine the ordering between two heap items.
 
         This method is implemented by `MinHeap` and `MaxHeap` to define
-        the heap’s ordering rule.
+        the heap's ordering rule.
 
-        Parameters
-        ----------
+        Parameters:
         a : HeapItem
             The first heap item to compare.
         b : HeapItem
             The second heap item to compare.
 
-        Returns
-        -------
+        Returns:
         bool
-            `True` if `a` should come before `b` in the heap (i.e., higher priority),
+            `True` if `a` should come before `b` in the heap (i.e. higher priority),
             `False` otherwise.
+
+        Time Complexity:
+        O(1)
 
         """
         pass
@@ -94,15 +102,17 @@ class IndexedHeap(ABC):
         """
         Move the item at `idx` upward in the heap until the heap property is restored.
 
-        Parameters
-        ----------
+        Parameters:
         idx : int, optional
             Index of the item to sift up. Defaults to the last element.
 
-        Returns
-        -------
+        Returns:
         int
             The final index of the item after sifting.
+
+
+        Time Complexity:
+        O(log(N))
 
         """
 
@@ -113,12 +123,12 @@ class IndexedHeap(ABC):
             raise ValueError(f"idx out of range, idx: {idx}, heap size: {len(self.heap)}")
         while idx > 0:
             parent_idx = (idx - 1) // 2
-            parent_value = self.heap[parent_idx]
-            value = self.heap[idx]
-            if self._comes_before(value, parent_value):
+            parent_heap_item = self.heap[parent_idx]
+            curr_heap_item = self.heap[idx]
+            if self._comes_before(curr_heap_item, parent_heap_item):
                 self.heap[idx], self.heap[parent_idx] = self.heap[parent_idx], self.heap[idx]
-                self.item_to_index[value] = parent_idx
-                self.item_to_index[parent_value] = idx
+                self.item_to_index[curr_heap_item.value] = parent_idx
+                self.item_to_index[parent_heap_item.value] = idx
                 idx = parent_idx
             else:
                 break
@@ -128,15 +138,16 @@ class IndexedHeap(ABC):
         """
         Move the item at `idx` downward in the heap until the heap property is restored.
 
-        Parameters
-        ----------
+        Parameters:
         idx : int, optional
-            Index of the item to sift downn. Defaults to the first element.
+            Index of the item to sift down. Defaults to the first element.
 
-        Returns
-        -------
+        Returns:
         int
             The final index of the item after sifting.
+
+        Time Complexity:
+        O(log(N))
 
         """
         n = len(self.heap)
@@ -150,19 +161,19 @@ class IndexedHeap(ABC):
             or (child2_idx < n and self._comes_before(self.heap[child2_idx], self.heap[idx]))    
             ):
             child_idx = child1_idx
-            child_value = self.heap[child1_idx]
-            if child2_idx < n and self._comes_before(self.heap[child2_idx], child_value):
+            child_heap_item = self.heap[child1_idx]
+            if child2_idx < n and self._comes_before(self.heap[child2_idx], child_heap_item):
                 child_idx = child2_idx
-                child_value = self.heap[child2_idx]
-            value = self.heap[idx]
+                child_heap_item = self.heap[child2_idx]
+            curr_heap_item = self.heap[idx]
             self.heap[idx], self.heap[child_idx] = self.heap[child_idx], self.heap[idx]
-            self.item_to_index[child_value] = idx
-            self.item_to_index[value] = child_idx
+            self.item_to_index[child_heap_item.value] = idx
+            self.item_to_index[curr_heap_item.value] = child_idx
             idx = child_idx
             child1_idx, child2_idx = (2 * idx + 1), (2 * idx + 2)
         return idx
     
-    def peek(self) -> Any | None:
+    def peek(self):
         """
         Return the top element of the heap without removing it.
 
@@ -171,9 +182,11 @@ class IndexedHeap(ABC):
         Any or None
             The smallest/largest item depending on heap type, or None if the heap is empty.
 
+        Time Complexity:
+        O(1)
         """
         if self.heap:
-            return self.heap[0].item
+            return self.heap[0].value
         else:
             return None
         
@@ -202,20 +215,23 @@ class IndexedHeap(ABC):
         - `MinHeap` uses `<`
         - `MaxHeap` uses `>`
 
+        Time Complexity:
+        O(log(N))
+
         """
 
         if len(self.heap) > 0:
-            is_comparable, type1, type2 = self._is_comparable(item, self.heap[0].item)
+            is_comparable, type1, type2 = self._is_comparable(item, self.heap[0].value)
             if not is_comparable:
                 raise TypeError(f"All items in the heap must be comparable. {type1} and {type2} are not comparable.")
         self.size += count
         heap_item = HeapItem(item, count)
-        if heap_item in self.item_to_index:
-            idx = self.item_to_index[heap_item]
+        if item in self.item_to_index:
+            idx = self.item_to_index[item]
             self.heap[idx].frequency += count
         else:
             self.heap.append(heap_item)
-            self.item_to_index[heap_item] = len(self.heap) - 1
+            self.item_to_index[item] = len(self.heap) - 1
             self._sift_up()
 
     def pop(self):
@@ -225,15 +241,17 @@ class IndexedHeap(ABC):
         If the root element has a frequency greater than 1, its frequency is
         decremented instead of removing the node entirely.
 
-        Returns
-        -------
+        Returns:
         Any
             The smallest (in MinHeap) or largest (in MaxHeap) item in the heap.
 
-        Raises
-        ------
+        Raises:
         IndexError
             If called on an empty heap.
+
+        Time Complexity:
+        O(log(N))
+
         """
         
         n = len(self.heap)
@@ -243,42 +261,43 @@ class IndexedHeap(ABC):
         root: HeapItem = self.heap[0]
         if root.frequency > 1:
             root.frequency -= 1
-            return root.item
+            return root.value
         else:
             if n > 1:
-                last_item = self.heap[n-1]
+                last_heap_item = self.heap[n-1]
                 self.heap[0], self.heap[n-1] = self.heap[n-1], self.heap[0]
-                self.item_to_index[last_item] = 0
+                self.item_to_index[last_heap_item.value] = 0
             res = self.heap.pop()
-            del self.item_to_index[res]
+            del self.item_to_index[res.value]
             if len(self.heap) > 1:
                 self._sift_down()
-            return res.item
+            return res.value
     
     def _item_in_heap(self, item):
         """
         Check if an item exists in the heap.
 
         Returns a tuple of (found, heap_item, index):
-        - found (bool): True if the item is in the heap and its index is valid.
-        - heap_item (HeapItem or None): The HeapItem instance if found, else None.
-        - index (int or None): The index of the item in the heap array if found, else None.
+            found (bool): True if the item is in the heap and its index is valid.
+            heap_item (HeapItem or None): The HeapItem instance if found, else None.
+            index (int or None): The index of the item in the heap array if found, else None.
 
-        Notes
-        -----
+        Notes:
         Under normal operation, the index dictionary (`self.item_to_index`) and heap list (`self.heap`)
         should always be in sync. This method defensively removes any stale entries that may occur,
         for example if a user manually modifies `self.heap` or `self.item_to_index`, or in the event of
         an unexpected interruption during heap operations.
+
+        Time Complexity: O(1)
+
         """
-        heap_item = HeapItem(item)
-        if heap_item not in self.item_to_index:
+        if item not in self.item_to_index:
             return (False, None, None)
-        idx = self.item_to_index[heap_item]
+        idx = self.item_to_index[item]
         if 0 <= idx < len(self.heap):
             return (True, self.heap[idx], idx)
         else:
-            del self.item_to_index[heap_item]
+            del self.item_to_index[item]
             return (False, None, None)
     
     def remove(self, item, count = None, *, strict = True):
@@ -314,6 +333,10 @@ class IndexedHeap(ABC):
         is decremented instead of removing the heap node entirely.
         - If the item’s frequency equals the removal count, the heap node is removed
         and the heap property is restored via `_sift_down` and `_sift_up`.
+
+        Time Complexity:
+        O(log(N))
+
         """
 
         found_in_heap, heap_item, idx = self._item_in_heap(item)
@@ -339,11 +362,11 @@ class IndexedHeap(ABC):
         else:
             last_idx = len(self.heap) -1
             if idx != last_idx:
-                last_item = self.heap[last_idx]
+                last_heap_item = self.heap[last_idx]
                 self.heap[idx], self.heap[last_idx] = self.heap[last_idx], self.heap[idx]
-                self.item_to_index[last_item] = idx
+                self.item_to_index[last_heap_item.value] = idx
             self.heap.pop()
-            del self.item_to_index[heap_item]
+            del self.item_to_index[heap_item.value]
             self.size -= heap_item.frequency
             if idx != last_idx:
                 new_idx = self._sift_down(idx)
@@ -354,10 +377,12 @@ class IndexedHeap(ABC):
         """
         Return the total number of items in the heap, including duplicates.
 
-        Returns
-        -------
+        Returns:
         int
             The sum of frequencies of all items in the heap.
+        
+        Time Complexity:
+        O(1)
 
         """
         return self.size
@@ -366,10 +391,12 @@ class IndexedHeap(ABC):
         """
         Return True if the heap contains any items, False otherwise.
 
-        Returns
-        -------
+        Returns:
         bool
             True if the heap is non-empty, False if empty.
+        
+        Time Complexity:
+        O(1)
 
         """
         return bool(self.heap)
@@ -378,16 +405,17 @@ class IndexedHeap(ABC):
         """
         Return the frequency of a given item in the heap.
 
-        Parameters
-        ----------
+        Parameters:
         item : Any
             The item to count occurrences of.
 
-        Returns
-        -------
+        Returns:
         int
             The number of times `item` appears in the heap (its frequency). Returns 0 if not present.
-            
+
+        Time Complexity:
+        O(1)
+             
         """
         found_in_heap, heap_item, _ = self._item_in_heap(item)
         if found_in_heap:
@@ -395,39 +423,28 @@ class IndexedHeap(ABC):
         else:
             return 0
 
-    def to_heap_array(self, *, showFreq = False):
+    def internal_heap(self):
         """
-        Return a list representation of the heap.
+        Return a list representation of the internal heap structure.
 
-        Parameters
-        ----------
-        showFreq : bool, default False
-            If True, each element is returned as a tuple `(item, frequency)`.
-            If False, only the item values are returned.
+        Each element is returned as a tuple `(value, frequency)`.
 
-        Returns
-        -------
-        list
-            A list of heap elements. By default, returns just the items in heap order.
-            If `showFreq=True`, returns a list of `(item, frequency)` tuples.
-
+        Returns:
+        list of tuples
+            A list of `(value, frequency)` tuples representing the heap in its
+            current internal order (not necessarily sorted order).
+        
+        Time Complexity:
+        O(N)
         """
-        res = []
-        if showFreq:
-            for heap_item in self.heap:
-                res.append((heap_item.item, heap_item.frequency))
-        else:
-            for heap_item in self.heap:
-                res.append(heap_item.item)
-        return res
+        return [(heap_item.value, heap_item.frequency) for heap_item in self.heap]
     
     def _copy(self):
         """
         Create a shallow copy of the heap.
 
-        Returns
-        -------
-        IndexedHeap
+        Returns:
+        MinHeap | MaxHeap
             A new heap instance of the same type with the same items,
             frequencies, and internal index mapping. Modifying the copy
             does not affect the original heap.
@@ -437,9 +454,11 @@ class IndexedHeap(ABC):
         This is primarily used for iteration or internal operations
         where a temporary copy of the heap is needed.
 
+        Time Complexity:
+        O(N)
         """
-        heap_copy = [HeapItem(heap_item.item, heap_item.frequency) for heap_item in self.heap]
-        item_to_index_copy = {heap_copy[index]: index for index in range(len(heap_copy))}
+        heap_copy = [HeapItem(heap_item.value, heap_item.frequency) for heap_item in self.heap]
+        item_to_index_copy = {heap_copy[index].value: index for index in range(len(heap_copy))}
         size_copy = self.size
         new_heap = self.__class__()
         new_heap.heap, new_heap.item_to_index, new_heap.size = heap_copy, item_to_index_copy, size_copy
@@ -449,17 +468,18 @@ class IndexedHeap(ABC):
         """
         Iterate over the heap elements in sorted order.
 
-        Returns
-        -------
+        Returns:
         Iterator[Any]
             Yields items from the heap one by one in order determined
             by the heap type (smallest to largest for MinHeap, largest
             to smallest for MaxHeap).
 
-        Notes
-        -----
-       Iteration is performed on a copy of the heap by repeatedly popping
-       the root, so the original heap remains unchanged.
+        Notes:
+        Iteration is performed on a copy of the heap by repeatedly popping
+        the root, so the original heap remains unchanged.
+
+        Time Complexity:
+        O(N)
 
         """
         copy = self._copy()
@@ -470,15 +490,17 @@ class IndexedHeap(ABC):
         """
         Return a list of all heap elements in sorted order.
 
-        Returns
-        -------
+        Returns:
         list
             A list of items in the heap sorted according to the heap type
             (MinHeap: ascending, MaxHeap: descending).
 
-        Notes
-        -----
+        Notes:
         Internally uses the `__iter__` method.
+
+        Time Complexity:
+        O(N * log(N))
+
         """
         return list(self)
     
@@ -493,9 +515,13 @@ class IndexedHeap(ABC):
         -------
         str
             A string showing all items in the heap along with their frequencies,
-            as produced by `to_heap_array(showFreq=True)`.
+            as produced by `internal_heap()`.
+        
+        Time Complexity:
+        O(N)
+
         """
-        return str(self.to_heap_array(showFreq=True))
+        return str(self.internal_heap())
     
     def __contains__(self, item):
         """
@@ -503,15 +529,16 @@ class IndexedHeap(ABC):
 
         This allows using the `in` operator with the heap, e.g. `item in heap`.
 
-        Parameters
-        ----------
+        Parameters:
         item : Any
             The item to check for in the heap.
 
-        Returns
-        -------
+        Returns:
         bool
             True if the item exists in the heap, False otherwise.
+
+        Time Complexity:
+        O(1)
         """
         found, _, _ = self._item_in_heap(item)
         return found
@@ -537,25 +564,26 @@ class IndexedHeap(ABC):
     
     def __eq__(self, other):
         """
-        Compare two heaps for equality.
+        Compare two heaps for strict equality.
 
-        Parameters
-        ----------
-        other : Any
-            Another heap object to compare against.
-
-        Returns
-        -------
+        Returns:
         bool
-            True if both heaps are of the same class, have the same items
-            in the same positions, and matching frequencies. False otherwise.
+            True if and only if:
 
-        Notes
-        -----
-        - Equality requires both the heap array and the internal index mapping
-        to match.
-        - Uses `_is_class` to ensure type consistency between heaps.
-        
+            - `other` is an instance of the same heap subclass (e.g. both MinHeap),
+            - Both heaps contain the same number of internal nodes (unique items),
+            - Each position `i` in the internal heap array contains a HeapItem with
+            the same value *and* frequency,
+            - And the internal `item_to_index` mappings agree for all values.
+
+        Notes:
+        This is a structural equality check. It verifies not only that both
+        heaps contain the same multiset of values, but that they have the same
+        internal layout and index mapping. Heaps with equal contents but different
+        tree shapes (due to different insertion orders) will be considered unequal.
+
+        Time Complexity:
+        O(N)
         """
         if not self._is_class(other):
             return False
@@ -565,7 +593,7 @@ class IndexedHeap(ABC):
             if self.heap[i] != other.heap[i]:
                 return False
             try:
-                if self.item_to_index[self.heap[i]] != other.item_to_index[other.heap[i]]:
+                if self.item_to_index[self.heap[i].value] != other.item_to_index[other.heap[i].value]:
                     return False
             except KeyError:
                 return False
@@ -579,26 +607,29 @@ class IndexedHeap(ABC):
         """
         Determine whether two items can be compared according to the heap's ordering rules.
 
-        Parameters
-        ----------
+        Parameters:
         a : Any
             The first item.
         b : Any
             The second item.
 
-        Returns
-        -------
+        Returns:
         tuple
             (is_comparable, type(a), type(b))
 
             `is_comparable` is True if the items can be compared according 
             to the heap rules, False otherwise.
+
+        Time Complexity:
+        O(1)
+
         """
         pass
     
 class MinHeap(IndexedHeap):
+
     """
-    Min-heap implementation of IndexedHeap.
+    Min-heap implementation of the IndexedHeap class.
 
     Elements are ordered such that the smallest element is at the root.
 
@@ -607,18 +638,18 @@ class MinHeap(IndexedHeap):
         """
         Determine the ordering between two items for a min-heap.
 
-        Parameters
-        ----------
-        a : Any
-            First item to compare.
-        b : Any
-            Second item to compare.
+        Parameters:
+        a : HeapItem
+            The first heap item to compare.
+        b : HeapItem
+            The second heap item to compare.
 
-        Returns
-        -------
+        Returns:
         bool
-            True if `a` should come before `b` in the min-heap (i.e., a < b).
+            True if `a` should come before `b` in the min-heap (i.e. a < b).
 
+        Time Complexity:
+        O(1)
         """
         return a < b
     
@@ -626,18 +657,19 @@ class MinHeap(IndexedHeap):
         """
         Check if two items can be compared using `<`.
 
-        Parameters
-        ----------
+        Parameters:
         a : Any
             First item to check.
         b : Any
             Second item to check.
 
-        Returns
-        -------
+        Returns:
         tuple
             (is_comparable, type(a), type(b)), where `is_comparable` is True
             if both items support `<` comparisons, False otherwise.
+        
+        Time Complexity:
+        O(1)
 
         """
         try:
@@ -651,15 +683,16 @@ class MinHeap(IndexedHeap):
         """
         Check if another object is a MinHeap instance.
 
-        Parameters
-        ----------
+        Parameters:
         other : Any
             The object to check.
 
-        Returns
-        -------
+        Returns:
         bool
             True if `other` is an instance of MinHeap, False otherwise.
+
+        Time Complexity:
+        O(1)
 
         """
         if isinstance(other, MinHeap):
@@ -668,21 +701,29 @@ class MinHeap(IndexedHeap):
             return False
 
 class MaxHeap(IndexedHeap):
+    """
+    Max-heap implementation of the IndexedHeap class.
+
+    Elements are ordered such that the greatest element is at the root.
+
+    """
     def _comes_before(self, a, b):
         """
         Determine the ordering between two items for a max-heap.
 
-        Parameters
-        ----------
-        a : Any
-            First item to compare.
-        b : Any
-            Second item to compare.
+        Parameters:
+        a : HeapItem
+            The first heap item to compare.
+        b : HeapItem
+            The second heap item to compare.
 
-        Returns
-        -------
+        Returns:
         bool
-            True if `a` should come before `b` in the max-heap (i.e., a > b).
+            True if `a` should come before `b` in the max-heap (i.e. a > b).
+        
+        Time Complexity:
+        O(1)
+
         """
         return a > b
     
@@ -702,6 +743,9 @@ class MaxHeap(IndexedHeap):
         tuple
             (is_comparable, type(a), type(b)), where `is_comparable` is True
             if both items support `>` comparisons, False otherwise.
+        
+        Time Complexity:
+        O(1)
 
         """
         try:
@@ -715,15 +759,16 @@ class MaxHeap(IndexedHeap):
         """
         Check if another object is a MaxHeap instance.
 
-        Parameters
-        ----------
+        Parameters:
         other : Any
             The object to check.
 
-        Returns
-        -------
+        Returns:
         bool
             True if `other` is an instance of MaxHeap, False otherwise.
+
+        Time Complexity:
+        O(1)
             
         """
         if isinstance(other, MaxHeap):

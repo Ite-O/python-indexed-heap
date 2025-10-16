@@ -1,9 +1,9 @@
 [project]
 name = "indexedheap"
-version = "0.1.2"
+version = "0.1.0"
 description = "MinHeap and MaxHeap with fast arbitrary-value removal and duplicate support."
 authors = [
-    { name = "Ite O", email = "oitedev@gmail.com" }
+    { name = "iteo", email = "oitedev@gmail.com" }
 ]
 readme = "README.md"
 license = "MIT"

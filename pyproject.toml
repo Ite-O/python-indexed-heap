@@ -1,6 +1,6 @@
 [project]
 name = "indexedheap"
-version = "0.1.0"
+version = "0.1.1"
 description = "Python MinHeap and MaxHeap implementation with arbitrary-value removal, frequency tracking for duplicates, and sorted iteration."
 authors = [
     { name = "iteo", email = "oitedev@gmail.com" }
@@ -19,6 +19,7 @@ classifiers = [
 
 [project.urls]
 Source = "https://github.com/Ite-O/python-indexed-heap"
+Issues = "https://github.com/Ite-O/python-indexed-heap/issues"
 
 [build-system]
 requires = ["hatchling >= 1.26"]

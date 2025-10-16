@@ -28,4 +28,3 @@ build-backend = "hatchling.build"
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-ra -q"
-

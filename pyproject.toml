@@ -1,7 +1,7 @@
 [project]
 name = "indexedheap"
 version = "0.1.0"
-description = "MinHeap and MaxHeap with fast arbitrary-value removal and duplicate support."
+description = "Heap implementation with arbitrary-value removal and frequency tracking."
 authors = [
     { name = "iteo", email = "oitedev@gmail.com" }
 ]

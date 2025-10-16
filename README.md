@@ -8,6 +8,8 @@ This package provides a pure-Python implementation of **MinHeap** and **MaxHeap*
 - Iteration in sorted order (ascending for MinHeap, descending for MaxHeap) without modifying the heap.
 - Container-like behavior with implementations for len(), in, equality checks, and truthiness.
 
+Available on PyPI: https://pypi.org/project/indexedheap/
+
 ## Features & Time Complexity
 
 | Operation | Description | Time Complexity |

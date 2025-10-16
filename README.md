@@ -12,7 +12,7 @@ This package provides a pure-Python implementation of **MinHeap** and **MaxHeap*
 
 | Operation | Description | Time Complexity |
 |-----------|-------------|----------------|
-| `insert(value, count=1)` | Insert a value (or multiple occurrences). If the value already exists, frequency is incremented | O(log N) for a new value, O(1) for an existing value |
+| `insert(value, count=1)` | Insert a value (or multiple occurrences). If the value already exists, frequency is incremented | O(log N) for a new value; O(1) for an existing value |
 | `pop()` | Remove and return the root value (min or max) | O(log N) |
 | `peek()` | Return the root value without removing it | O(1) |
 | `remove(value, *, count=1, strict=True)` | Remove a value (or multiple occurrences). | Removing fewer than the total occurrences is O(1); removing the last occurrence is O(log N) |

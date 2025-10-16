@@ -157,7 +157,7 @@ max_heap = MaxHeap([1, 2]) # Heap contains: [(value: 2, frequency: 1), (value: 1
 max_heap.pop() # Returns 2; Heap contains: [(value: 1, frequency: 1)].
 ```
 
-### Get occurrences of value
+### Get frequency (count) of value
 ```python
 from indexedheap import MinHeap, MaxHeap
 

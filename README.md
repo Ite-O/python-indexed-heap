@@ -1,11 +1,12 @@
 # Indexed Heap
 
 This package provides a pure-Python implementation of **MinHeap** and **MaxHeap** that extend standard heap functionality with support for:
-- Removing any value efficiently — not just the root.
-- Handling duplicates — store multiple occurrences of the same value and track their frequency.
-- Iteration in sorted order — loop over heap values from smallest to largest (MinHeap) or largest to smallest (MaxHeap) without modifying the heap.
-- Sorted extraction — obtain a fully sorted list of all values without changing the heap.
-- Container-like behavior — use len(), in, equality checks, and truthiness.
+- Efficient removal of any value.
+- Removal of multiple occurrences of a value in a single operation.
+- Insertion of multiple occurrences of a value in a single operation.
+- Tracking frequency to handle duplicate values.
+- Iteration in sorted order (ascending for MinHeap, descending for MaxHeap) without modifying the heap.
+- Container-like behavior with implementations for len(), in, equality checks, and truthiness.
 
 ## Features & Time Complexity
 
@@ -57,10 +58,10 @@ max_heap = MaxHeap(arr) # Heap contains: [(value: 3, frequency: 1), (value: 1, f
 from indexedheap import MinHeap, MaxHeap
 
 min_heap = MinHeap() # Heap is empty.
-min_heap.insert(1) # Heap contains: (value: 1, frequency: 1).
+min_heap.insert(1) # Heap contains: [(value: 1, frequency: 1)].
 
 max_heap = MaxHeap() # Heap is empty.
-max_heap.insert(1) # Heap contains: (value: 1, frequency: 1).
+max_heap.insert(1) # Heap contains: [(value: 1, frequency: 1)].
 ```
 
 ### Insert a value multiple times
@@ -68,20 +69,20 @@ max_heap.insert(1) # Heap contains: (value: 1, frequency: 1).
 from indexedheap import MinHeap, MaxHeap
 
 min_heap = MinHeap() # Heap is empty.
-min_heap.insert(1, count = 2) # Heap contains: (value: 1, frequency: 2).
+min_heap.insert(1, count=2) # Heap contains: [(value: 1, frequency: 2)].
 
 max_heap = MaxHeap() # Heap is empty.
-max_heap.insert(1, count = 2) # Heap contains: (value: 1, frequency: 2).
+max_heap.insert(1, count=2) # Heap contains: [(value: 1, frequency: 2)].
 ```
 
 ### Remove a value
 ```python
 from indexedheap import MinHeap, MaxHeap
 
-min_heap = MinHeap([1]) # Heap contains: (value: 1, frequency: 1).
+min_heap = MinHeap([1]) # Heap contains: [(value: 1, frequency: 1)].
 min_heap.remove(1) # Heap is empty.
 
-max_heap = MaxHeap([1]) # Heap contains: (value: 1, frequency: 1).
+max_heap = MaxHeap([1]) # Heap contains: [(value: 1, frequency: 1)].
 max_heap.remove(1) # Heap is empty.
 ```
 
@@ -89,28 +90,28 @@ max_heap.remove(1) # Heap is empty.
 ```python
 from indexedheap import MinHeap, MaxHeap
 
-min_heap = MinHeap([1, 1]) # Heap contains: (value: 1, frequency: 2).
-min_heap.remove(1, count = 2) # Heap is empty.
+min_heap = MinHeap([1, 1]) # Heap contains: [(value: 1, frequency: 2)].
+min_heap.remove(1, count=2) # Heap is empty.
 
-max_heap = MaxHeap([1, 1]) # Heap contains: (value: 1, frequency: 2).
-max_heap.remove(1, count = 2) # Heap is empty.
+max_heap = MaxHeap([1, 1]) # Heap contains: [(value: 1, frequency: 2)].
+max_heap.remove(1, count=2) # Heap is empty.
 ```
 
 ### Remove all occurrences of a value
 ```python
 from indexedheap import MinHeap, MaxHeap
 
-min_heap = MinHeap([1, 1]) # Heap contains: (value: 1, frequency: 2).
-min_heap.remove(1, count = min_heap.count(1)) # Heap is empty.
+min_heap = MinHeap([1, 1]) # Heap contains: [(value: 1, frequency: 2)].
+min_heap.remove(1, count=min_heap.count(1)) # Heap is empty.
 
-max_heap = MaxHeap([1, 1]) # Heap contains: (value: 1, frequency: 2).
-max_heap.remove(1, count = max_heap.count(1)) # Heap is empty.
+max_heap = MaxHeap([1, 1]) # Heap contains: [(value: 1, frequency: 2)].
+max_heap.remove(1, count=max_heap.count(1)) # Heap is empty.
 ```
 
 ### Optimistically remove a value
 The strict flag controls whether removing a non-existent value should raise an error:
-- strict = True (default) -> raise a KeyError if the value isn't in the heap
-- strict = False -> attempt to remove the value (up to the given count, if provided), but do nothing if it isn't present
+- strict=True (default) -> raise a KeyError if the value isn't in the heap
+- strict=False -> attempt to remove the value (up to the given count, if provided), but do nothing if it isn't present
 ```python
 from indexedheap import MinHeap, MaxHeap
 
@@ -120,7 +121,7 @@ min_heap.remove(1) # Raises KeyError.
 min_heap.remove(1, strict=False) # Heap is empty, no error.
 
 # Value present, but count exceeds frequency — no error
-min_heap = MinHeap([1, 1]) # Heap contains: (value: 1, frequency: 2).
+min_heap = MinHeap([1, 1]) # Heap contains: [(value: 1, frequency: 2)].
 min_heap.remove(1, count=3) # Raises ValueError.
 min_heap.remove(1, count=3, strict=False) # Heap is empty, no error.
 
@@ -129,7 +130,7 @@ max_heap = MaxHeap([]) # Heap is empty.
 max_heap.remove(1) # Raises KeyError.
 max_heap.remove(1, strict=False) # Heap is empty, no error.
 
-max_heap = MaxHeap([1, 1]) # Heap contains: (value: 1, frequency: 2).
+max_heap = MaxHeap([1, 1]) # Heap contains: [(value: 1, frequency: 2)].
 max_heap.remove(1, count=3) # Raises ValueError.
 max_heap.remove(1, count=3, strict=False) # Heap is empty, no error.
 ```
@@ -161,10 +162,10 @@ max_heap.pop() # Returns 2; Heap contains: [(value: 1, frequency: 1)].
 from indexedheap import MinHeap, MaxHeap
 
 # Value present
-min_heap = MinHeap([1, 1]) # Heap contains: (value: 1, frequency: 2).
+min_heap = MinHeap([1, 1]) # Heap contains: [(value: 1, frequency: 2)].
 min_heap.count(1) # Returns 2; Heap unchanged.
 
-max_heap = MaxHeap([1, 1]) # Heap contains: (value: 1, frequency: 2).
+max_heap = MaxHeap([1, 1]) # Heap contains: [(value: 1, frequency: 2)].
 max_heap.count(1) # Returns 2; Heap unchanged.
 
 # Value not present
@@ -179,13 +180,13 @@ max_heap.count(1) # Returns 0; Heap unchanged.
 ```python
 from indexedheap import MinHeap, MaxHeap
 
-min_heap = MinHeap([1, 1]) # Heap contains: (value: 1, frequency: 2).
+min_heap = MinHeap([1, 1]) # Heap contains: [(value: 1, frequency: 2)].
 len(min_heap) # Returns 2; Heap unchanged.
 
 min_heap = MinHeap([1, 2]) # Heap contains: [(value: 1, frequency: 1), (value: 2, frequency: 1)].
 len(min_heap) # Returns 2; Heap unchanged.
 
-max_heap = MaxHeap([1, 1]) # Heap contains: (value: 1, frequency: 2).
+max_heap = MaxHeap([1, 1]) # Heap contains: [(value: 1, frequency: 2)].
 len(max_heap) # Returns 2; Heap unchanged.
 
 max_heap = MaxHeap([1, 2]) # Heap contains: [(value: 2, frequency: 1), (value: 1, frequency: 1)].
@@ -232,11 +233,11 @@ list(max_heap)  # Returns [3, 2, 1]; Heap unchanged.
 ```python
 from indexedheap import MinHeap, MaxHeap
 
-min_heap = MinHeap([1]) # Heap contains: (value: 1, frequency: 1).
+min_heap = MinHeap([1]) # Heap contains: [(value: 1, frequency: 1)].
 1 in min_heap # Returns True.
 0 in min_heap # Returns False.
 
-max_heap = MaxHeap([1]) # Heap contains: (value: 1, frequency: 1).
+max_heap = MaxHeap([1]) # Heap contains: [(value: 1, frequency: 1)].
 1 in max_heap # Returns True.
 0 in max_heap # Returns False.
 ```

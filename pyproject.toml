@@ -1,7 +1,7 @@
 [project]
 name = "indexedheap"
 version = "0.1.0"
-description = "Heap implementation with arbitrary-value removal and frequency tracking."
+description = "Python MinHeap and MaxHeap implementation with arbitrary-value removal, frequency tracking for duplicates, and sorted iteration."
 authors = [
     { name = "iteo", email = "oitedev@gmail.com" }
 ]

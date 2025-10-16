@@ -1,7 +1,6 @@
 import pytest
-from Indexed_Heap import MaxHeap, MinHeap
+from indexedheap import MaxHeap, MinHeap
 import math
-
 
 @pytest.fixture
 def arr():
@@ -72,7 +71,7 @@ class TestInsert:
             assert heap.count(value) == expected_count
         
         additional_count = 10
-        heap.insert(1, additional_count)
+        heap.insert(1, count = additional_count)
         expected_count += additional_count
         assert len(heap) == expected_count
         assert heap.count(value) == expected_count
@@ -188,7 +187,7 @@ class TestRemove:
     
     def test_remove_item_not_in_heap_strict_on(self, HeapClass, arr):
         heap = HeapClass(arr)
-        with pytest.raises(ValueError):
+        with pytest.raises(KeyError):
             value_to_remove = "#"
             while value_to_remove in heap:
                 value_to_remove += "#"

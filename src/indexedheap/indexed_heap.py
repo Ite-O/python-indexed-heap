@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from HeapItem import HeapItem
+from .heap_item import HeapItem
     
 class IndexedHeap(ABC):
     """
@@ -190,7 +190,7 @@ class IndexedHeap(ABC):
         else:
             return None
         
-    def insert(self, item, count = 1):
+    def insert(self, item,*, count = 1):
         """
         Insert an item into the heap.
 
@@ -300,7 +300,7 @@ class IndexedHeap(ABC):
             del self.item_to_index[item]
             return (False, None, None)
     
-    def remove(self, item, count = None, *, strict = True):
+    def remove(self, item, *, count = 1, strict = True):
         """
         Remove a specified number of occurrences of an item from the heap.
 
@@ -344,9 +344,8 @@ class IndexedHeap(ABC):
             if strict == False:
                 return False
             else:
-                raise ValueError(f"{item} not in heap")
-        if count is None:
-            count = 1
+                raise KeyError(f"{item} not in heap")
+            
         if not isinstance(count, int):
             raise ValueError("The count must be an integer")
         if count < 1:

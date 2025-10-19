@@ -249,7 +249,7 @@ This package includes test coverage for:
 - Core heap operations (heap creation, insert, pop, peek, remove, count)
 - Frequency tracking
 - Edges cases e.g. removing non-existent values
-- Generation of sorted lists from heap contents (to_sorted_list())
+- Generation of sorted lists from heap contents (to_sorted_list)
 - Structural equality comparison (==)
 
 To run tests ensure pytest is installed

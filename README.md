@@ -27,7 +27,7 @@ Available on PyPI: https://pypi.org/project/indexedheap/
 | `heap1 == heap2` | Check heaps for equality | O(N) |
 
 **Notes:**  
-- Equality checks (`heap1 == heap2`) are **structural and strict**. Heaps with identical values but different insertion orders (resulting in different internal layouts) will **not** be considered equal.
+- Equality checks (`heap1 == heap2`) are structural and strict. Heaps with identical values but different insertion orders (resulting in different internal layouts) will not be considered equal.
 - `count` refers to the number of occurrences to insert or remove from the heap, defaults to 1.
 
  ## Installation
@@ -242,4 +242,22 @@ min_heap = MinHeap([1]) # Heap contains: [(value: 1, frequency: 1)].
 max_heap = MaxHeap([1]) # Heap contains: [(value: 1, frequency: 1)].
 1 in max_heap # Returns True.
 0 in max_heap # Returns False.
+```
+
+## Testing
+This package includes test coverage for:
+- Core heap operations (heap creation, insert, pop, peek, remove, count)
+- Frequency tracking
+- Edges cases e.g. removing non-existent values
+- Generation of sorted lists from heap contents (to_sorted_list())
+- Structural equality comparison (==)
+
+To run tests ensure pytest is installed
+```bash
+pip install pytest == 8.4.2
+```
+
+To run tests
+```bash
+pytest
 ```

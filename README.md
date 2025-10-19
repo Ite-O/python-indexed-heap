@@ -254,7 +254,7 @@ This package includes test coverage for:
 
 To run tests ensure pytest is installed
 ```bash
-pip install pytest == 8.4.2
+pip install pytest==8.4.2
 ```
 
 To run tests

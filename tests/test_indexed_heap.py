@@ -30,6 +30,23 @@ class TestHeapCreation:
     def test_create_heap_non_comparable_items(self, HeapClass):
         with pytest.raises(TypeError):
             HeapClass(arr=[1, "helloworld"])
+    
+    def test_create_heap_non_hashable_value(self, HeapClass):
+        class NonHashable:
+            __hash__ = None
+        with pytest.raises(TypeError) as exception_info: 
+            HeapClass(arr = [NonHashable()])
+        assert "not hashable" in str(exception_info.value)
+    
+    def test_create_heap_non_self_equatable_value(self, HeapClass):
+        class NonEquatable:
+            def __hash__(self):
+                return id(self)
+            def __eq__(self):
+                return False
+        with pytest.raises(TypeError) as exception_info: 
+            HeapClass(arr = [NonEquatable()])
+        assert "not equatable" in str(exception_info.value)
 
     def test_create_heap_with_valid_arr(self, HeapClass, arr): 
         heap = HeapClass(arr)
@@ -60,6 +77,25 @@ class TestInsert:
         with pytest.raises(TypeError):
             heap.insert(1)
     
+    def test_insert_non_hashable_value(self, HeapClass):
+        heap = HeapClass()
+        class NonHashable:
+            __hash__ = None
+        with pytest.raises(TypeError) as exception_info:
+            heap.insert(NonHashable())
+        assert "not hashable" in str(exception_info.value)
+
+    def test_insert_non_self_equatable_value(self, HeapClass):
+        heap = HeapClass()
+        class NonEquatable:
+            def __eq__(self):
+                return False
+            def __hash__(self):
+                return id(self)
+        with pytest.raises(TypeError) as exception_info: 
+            heap.insert(NonEquatable())
+        assert "not equatable" in str(exception_info.value)
+
     def test_insert_duplicates(self, HeapClass):
         heap = HeapClass()
         value = 1

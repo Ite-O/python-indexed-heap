@@ -27,10 +27,11 @@ class TestHeapCreation:
         with pytest.raises(TypeError):
             HeapClass(arr = "helloworld")
 
-    def test_create_heap_non_comparable_items(self, HeapClass):
-        with pytest.raises(TypeError):
+    def test_create_heap_non_comparable_values(self, HeapClass):
+        with pytest.raises(TypeError) as exception_info:
             HeapClass(arr=[1, "helloworld"])
-    
+        assert "not comparable" in str(exception_info.value)
+
     def test_create_heap_non_hashable_value(self, HeapClass):
         class NonHashable:
             __hash__ = None
@@ -65,17 +66,19 @@ class TestHeapCreation:
 
 @pytest.mark.parametrize("HeapClass", [MinHeap, MaxHeap])
 class TestInsert:
-    def test_insert_non_comparable_items_int_then_string(self, HeapClass):
+    def test_insert_non_comparable_values_int_then_string(self, HeapClass):
         heap = HeapClass()
         heap.insert(1)
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError) as exception_info:
             heap.insert("helloworld")
+        assert "not comparable" in str(exception_info.value)
     
-    def test_insert_non_comparable_items_string_then_int(self, HeapClass):
+    def test_insert_non_comparable_values_string_then_int(self, HeapClass):
         heap = HeapClass()
         heap.insert("helloworld")
-        with pytest.raises(TypeError):
+        with pytest.raises(TypeError) as exception_info:
             heap.insert(1)
+        assert "not comparable" in str(exception_info.value)
     
     def test_insert_non_hashable_value(self, HeapClass):
         heap = HeapClass()
@@ -171,7 +174,7 @@ class TestPop:
 
 @pytest.mark.parametrize("HeapClass", [MinHeap, MaxHeap])
 class TestRemove:
-    def test_remove_item_strict_off(self, HeapClass, arr):
+    def test_remove_value_strict_off(self, HeapClass, arr):
         heap = HeapClass(arr)
         size_before = len(heap)
         assert heap.remove(arr[0], strict = False) == True
@@ -180,7 +183,7 @@ class TestRemove:
         assert heap.count(arr[0]) == 0
         assert heap.remove(arr[0], strict = False) == False
 
-    def test_remove_item_all_duplicates(self, HeapClass, duplicate_value_arr):
+    def test_remove_value_all_duplicates(self, HeapClass, duplicate_value_arr):
         _, arr = duplicate_value_arr
         heap = HeapClass(arr)
         size = len(arr)
@@ -188,7 +191,7 @@ class TestRemove:
         assert len(heap) == 0
         assert heap.count(arr[0]) == 0     
     
-    def test_remove_item_count_not_int(self, HeapClass, arr):
+    def test_remove_value_count_not_int(self, HeapClass, arr):
         heap = HeapClass(arr)
         with pytest.raises(ValueError):
             heap.remove(arr[0], count = 1.5)
@@ -196,7 +199,7 @@ class TestRemove:
         with pytest.raises(ValueError):
             heap.remove(arr[0], count = "helloworld")
     
-    def test_remove_item_count_below_1(self, HeapClass, arr):
+    def test_remove_value_count_below_1(self, HeapClass, arr):
         heap = HeapClass(arr)
         with pytest.raises(ValueError):
             heap.remove(arr[0], count = 0)
@@ -204,7 +207,7 @@ class TestRemove:
         with pytest.raises(ValueError):
             heap.remove(arr[0], count = -1)
 
-    def test_remove_item_exceeding_frequency_strict(self, HeapClass, duplicate_value_arr):
+    def test_remove_value_exceeding_frequency_strict(self, HeapClass, duplicate_value_arr):
         _, arr = duplicate_value_arr
         heap = HeapClass(arr)
         size = len(arr)
@@ -213,7 +216,7 @@ class TestRemove:
         assert heap.count(arr[0]) == size
         assert len(heap) == size
 
-    def test_remove_item_exceeding_frequency_not_strict(self, HeapClass, duplicate_value_arr):
+    def test_remove_value_exceeding_frequency_not_strict(self, HeapClass, duplicate_value_arr):
         _, arr = duplicate_value_arr
         heap = HeapClass(arr)
         size = len(arr)
@@ -221,7 +224,7 @@ class TestRemove:
         assert len(heap) == 0
         assert heap.count(arr[0]) == 0      
     
-    def test_remove_item_not_in_heap_strict_on(self, HeapClass, arr):
+    def test_remove_value_not_in_heap_strict_on(self, HeapClass, arr):
         heap = HeapClass(arr)
         with pytest.raises(KeyError):
             value_to_remove = "#"

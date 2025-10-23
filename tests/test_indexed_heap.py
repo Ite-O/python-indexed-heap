@@ -12,7 +12,6 @@ def duplicate_value_arr():
     arr_length = 10
     return (duplicate_value, [duplicate_value] * arr_length)
 
-
 @pytest.mark.parametrize("HeapClass", [MinHeap, MaxHeap])
 class TestHeapCreation:
     def test_create_empty_heap(self, HeapClass):
@@ -43,7 +42,7 @@ class TestHeapCreation:
         class NonEquatable:
             def __hash__(self):
                 return id(self)
-            def __eq__(self):
+            def __eq__(self, other):
                 return False
         with pytest.raises(TypeError) as exception_info: 
             HeapClass(arr = [NonEquatable()])
@@ -91,10 +90,10 @@ class TestInsert:
     def test_insert_non_self_equatable_value(self, HeapClass):
         heap = HeapClass()
         class NonEquatable:
-            def __eq__(self):
-                return False
             def __hash__(self):
                 return id(self)
+            def __eq__(self, other):
+                return False
         with pytest.raises(TypeError) as exception_info: 
             heap.insert(NonEquatable())
         assert "not equatable" in str(exception_info.value)

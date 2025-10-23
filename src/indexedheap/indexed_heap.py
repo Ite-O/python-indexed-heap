@@ -170,8 +170,7 @@ class IndexedHeap(ABC):
         """
         Return the root value of the heap without removing it.
 
-        Returns
-        -------
+        Returns:
         Any or None
             The smallest/largest value depending on heap type, or None if the heap is empty.
 
@@ -190,20 +189,17 @@ class IndexedHeap(ABC):
         If the value already exists, its internal frequency counter is incremented
         instead of creating a duplicate entry.
 
-        Parameters
-        ----------
+        Parameters:
         value : Any
             The value to insert. Must be comparable with existing values in the heap.
         count : int, optional
             Number of occurrences to add. Defaults to 1.
 
-        Raises
-        ------
+        Raises:
         TypeError
             If the value is not comparable with existing values.
 
-        Notes
-        -----
+        Notes:
         Comparison depends on the heap type:
         - `MinHeap` uses `<`; values inserted into MinHeap must support `__lt__`.
         - `MaxHeap` uses `>`; values inserted into MaxHeap must support `__gt__`.
@@ -294,8 +290,7 @@ class IndexedHeap(ABC):
         """
         Remove a specified number of occurrences of a value from the heap.
 
-        Parameters
-        ----------
+        Parameters:
         value : Any
             The value to remove from the heap.
         count : int, optional
@@ -306,19 +301,16 @@ class IndexedHeap(ABC):
             If False, removes as many occurrences as possible (up to `count`) without
             raising an error. Returns False only if the value was not found.
 
-        Returns
-        -------
+        Returns:
         bool
             True if the removal was successful. False only if the value was not found
             and `strict=False`.
 
-        Raises
-        ------
+        Raises:
         ValueError
             If `strict=True` and the value is not in the heap, or if `count` is invalid.
 
-        Notes
-        -----
+        Notes:
         - If the values current frequencny is greater than the removal count, its frequency
         is decremented.
         - If the frequency equals the removal count, the associated `HeapItem` is removed
@@ -425,6 +417,7 @@ class IndexedHeap(ABC):
         
         Time Complexity:
         O(N)
+
         """
         return [(heap_item.value, heap_item.frequency) for heap_item in self.heap]
     
@@ -445,6 +438,7 @@ class IndexedHeap(ABC):
 
         Time Complexity:
         O(N)
+
         """
         heap_copy = [HeapItem(heap_item.value, heap_item.frequency) for heap_item in self.heap]
         item_to_index_copy = {heap_copy[index].value: index for index in range(len(heap_copy))}
@@ -528,6 +522,7 @@ class IndexedHeap(ABC):
 
         Time Complexity:
         O(1)
+
         """
         found, _, _ = self._value_in_heap(value)
         return found
@@ -573,6 +568,7 @@ class IndexedHeap(ABC):
 
         Time Complexity:
         O(N)
+
         """
         if not self._is_class(other):
             return False
@@ -668,6 +664,34 @@ class IndexedHeap(ABC):
             return False
     
     def _validate_value(self, value):
+        """
+        Validate whether a value can be inserted into the heap.
+
+        Checks performed:
+        1. Hashability: Values must be hashable to support dictionary-based indexing.
+        2. Self-equatability: Values must be equatable to themselves (`value == value`) to ensure
+        consistent behaviour in frequency tracking and equality comparisons.
+        3. Comparability: Values must be comparable with existing heap elements according to
+        the heap's ordering rules (`<` for MinHeap, `>` for MaxHeap).
+
+        Parameters:
+        value : Any
+            The value to validate for insertion into the heap.
+
+        Raises:
+        TypeError
+            - If the value is not hashable.
+            - If the value is not equatable to itself.
+            - If the value cannot be compared with existing heap elements.
+
+        Notes:
+        - This method ensures that all heap operations relying on value comparison, hashing, and
+        equality tracking will behave correctly.
+        
+        Time complexity:
+        O(1)
+
+        """
         is_hashable = self._is_hashable(value)
         if not is_hashable:
             raise TypeError(
@@ -709,6 +733,7 @@ class MinHeap(IndexedHeap):
 
         Time Complexity:
         O(1)
+
         """
         return a < b
     
